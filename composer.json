@@ -1,0 +1,20 @@
+{
+    "name": "fastwf/twig",
+    "description": "Library extension that support twig template frameworks for Fast Web Framework applications.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Fastwf\\Twig\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "David BELBEZE",
+            "email": "david.belbeze@gmail.com"
+        }
+    ],
+    "require": {
+        "twig/twig": "^3.0"
+    }
+}
