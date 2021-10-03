@@ -3,9 +3,12 @@
 namespace Fastwf\Twig;
 
 use Twig\Environment;
+use Twig\Loader\ArrayLoader;
 use Twig\Loader\FilesystemLoader;
 use Fastwf\Core\Engine\Service;
 use Fastwf\Core\Utils\AsyncProperty;
+
+use Fastwf\Twig\Extension\FrameworkExtension;
 
 /**
  * Service class that allows to render templates using Twig engine.
@@ -14,9 +17,13 @@ class TwigService extends Service {
 
     private $loader;
     private $environment;
+    private $runtimeEnvironment;
+    private $extension; 
 
     public function __construct($context) {
         parent::__construct($context);
+
+        $this->extension = new FrameworkExtension($context);
 
         $this->loader = new AsyncProperty(function () use ($context) {
             // Create the template loader asynchronously to use it only when it's required
@@ -28,7 +35,7 @@ class TwigService extends Service {
         $this->environment = new AsyncProperty(function () use ($context) {
             $modeProduction = $context->getConfiguration()->getBoolean('server.modeProduction', false);
 
-            return new Environment(
+            $environment = new Environment(
                 $this->loader->get(),
                 [
                     'cache' => $context->getCachePath('twig.twig'),
@@ -36,6 +43,18 @@ class TwigService extends Service {
                     'strict_variables' => true,
                 ]
             );
+            $environment->addExtension($this->extension);
+
+            return $environment;
+        });
+        $this->runtimeEnvironment = new AsyncProperty(function () {
+            $environment = new Environment(
+                new ArrayLoader([]),
+                ['strict_variables' => true]
+            );
+            $environment->addExtension($this->extension);
+
+            return $environment;
         });
     }
 
@@ -68,7 +87,7 @@ class TwigService extends Service {
     }
 
     /**
-     * Undocumented function
+     * Render the template specified by name using context.
      *
      * @param string $name The template name.
      * @param string $context The context containing variables to inject in the template.
@@ -78,6 +97,26 @@ class TwigService extends Service {
         return $this->environment
             ->get()
             ->render($name, $context);
+    }
+
+    /**
+     * Render the template from the given template string.
+     * 
+     * The template don't use the engine twig environment, including templates or extending from an existing template is not possible.
+     *
+     * @param string $template The string template to render
+     * @param array $context The context containing variables to inject in the template.
+     * @return string the template rendered with context variables
+     */
+    public function renderTemplateString($template, $context = []) {
+        $environment = $this->runtimeEnvironment->get();
+
+        // The loader interface is an ArrayLoader, override the previous runtime template 
+        $runtimeTemplateName = "__runtime";
+        $environment->getLoader()->setTemplate($runtimeTemplateName, $template);
+
+        // Render the tempate using the unique runtime template name
+        return $environment->render($runtimeTemplateName, $context);
     }
 
 }

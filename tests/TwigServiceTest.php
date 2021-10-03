@@ -15,9 +15,10 @@ class TwigServiceTest extends TestCase {
 
     /**
      * @covers Fastwf\Twig\TwigService
+     * @covers Fastwf\Twig\Extension\FrameworkExtension
      */
     public function testRender() {
-        $engine = new TestingEngine(__DIR__ . '/../resources/configuration.ini');
+        $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
 
         $service = new TwigService($engine);
 
@@ -29,9 +30,10 @@ class TwigServiceTest extends TestCase {
 
     /**
      * @covers Fastwf\Twig\TwigService
+     * @covers Fastwf\Twig\Extension\FrameworkExtension
      */
     public function testPrependPath() {
-        $engine = new TestingEngine(__DIR__ . '/../resources/configuration.ini');
+        $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
 
         $service = new TwigService($engine);
         $service->prependPath(__DIR__ . '/../resources/prepend-templates');
@@ -44,9 +46,10 @@ class TwigServiceTest extends TestCase {
 
     /**
      * @covers Fastwf\Twig\TwigService
+     * @covers Fastwf\Twig\Extension\FrameworkExtension
      */
     public function testAddPath() {
-        $engine = new TestingEngine(__DIR__ . '/../resources/configuration.ini');
+        $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
 
         $service = new TwigService($engine);
         $service->addPath(__DIR__ . '/../resources/templates');
@@ -59,9 +62,10 @@ class TwigServiceTest extends TestCase {
 
     /**
      * @covers Fastwf\Twig\TwigService
+     * @covers Fastwf\Twig\Extension\FrameworkExtension
      */
     public function testSetPaths() {
-        $engine = new TestingEngine(__DIR__ . '/../resources/configuration.ini');
+        $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
 
         $service = new TwigService($engine);
         $service->setPaths([__DIR__ . '/../resources/prepend-templates']);
@@ -70,6 +74,40 @@ class TwigServiceTest extends TestCase {
             \file_get_contents(__DIR__ . '/../resources/expected/index-prepend.html'),
             $service->render('index.html', ['engine' => 'Twig']),
         );
+    }
+
+    /**
+     * @covers Fastwf\Twig\TwigService
+     * @covers Fastwf\Twig\Extension\FrameworkExtension
+     */
+    public function testRenderTemplateString() {
+        $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
+
+        $service = new TwigService($engine);
+
+        $this->assertEquals(
+            'Hello Foo!',
+            $service->renderTemplateString(
+                'Hello {{ name|capitalize }}!',
+                ['name' => 'foo'],
+            ),
+        );
+    }
+
+    /**
+     * Generate a setup TestingEngine.
+     *
+     * @param string $configurationPath
+     * @return Fastwf\Tests\Engine\TestingEngine
+     */
+    private function getTestingEngine($configurationPath) {
+        $engine = $this->getMockBuilder(TestingEngine::class)
+            ->setConstructorArgs([$configurationPath])
+            ->onlyMethods(['handleRequest', 'sendResponse'])
+            ->getMock();
+        $engine->run();
+
+        return $engine;
     }
 
 }

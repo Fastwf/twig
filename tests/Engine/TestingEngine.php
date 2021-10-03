@@ -8,14 +8,17 @@ use Fastwf\Core\Engine\Engine;
 class TestingEngine extends Engine
 {
 
-    public function __construct($configurationPath = null) {
+    private $settings;
+
+    public function __construct($configurationPath = null, $settings = []) {
         parent::__construct($configurationPath);
 
         $this->config = new Configuration($configurationPath);
+        $this->settings = $settings;
     }
     
     public function getSettings() {
-        return [];
+        return $this->settings;
     }
 
 }

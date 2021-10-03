@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Fastwf/core.git",
-                "reference": "d2b66daa159437d9491116ef0a12a860cbf9f312"
+                "reference": "f2617aa9104abf47bded63094565e2d4355c9fba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Fastwf/core/zipball/d2b66daa159437d9491116ef0a12a860cbf9f312",
-                "reference": "d2b66daa159437d9491116ef0a12a860cbf9f312",
+                "url": "https://api.github.com/repos/Fastwf/core/zipball/f2617aa9104abf47bded63094565e2d4355c9fba",
+                "reference": "f2617aa9104abf47bded63094565e2d4355c9fba",
                 "shasum": ""
             },
             "require": {
@@ -52,7 +52,7 @@
                 "source": "https://github.com/Fastwf/core/tree/main",
                 "issues": "https://github.com/Fastwf/core/issues"
             },
-            "time": "2021-09-25T16:17:43+00:00"
+            "time": "2021-10-03T08:41:12+00:00"
         },
         {
             "name": "psr/log",
@@ -746,16 +746,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.5.0",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "30f38bffc6f24293dadd1823936372dfa9e86e2f"
+                "reference": "a12f7e301eb7258bb68acd89d4aefa05c2906cae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/30f38bffc6f24293dadd1823936372dfa9e86e2f",
-                "reference": "30f38bffc6f24293dadd1823936372dfa9e86e2f",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/a12f7e301eb7258bb68acd89d4aefa05c2906cae",
+                "reference": "a12f7e301eb7258bb68acd89d4aefa05c2906cae",
                 "shasum": ""
             },
             "require": {
@@ -790,9 +790,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.5.0"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.5.1"
             },
-            "time": "2021-09-17T15:28:14+00:00"
+            "time": "2021-10-02T14:08:47+00:00"
         },
         {
             "name": "phpspec/prophecy",
