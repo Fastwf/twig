@@ -109,14 +109,14 @@ class TwigService extends Service {
      * @return string the template rendered with context variables
      */
     public function renderTemplateString($template, $context = []) {
-        $environment = $this->runtimeEnvironment->get();
+        $runtimeEnv = $this->runtimeEnvironment->get();
 
         // The loader interface is an ArrayLoader, override the previous runtime template 
         $runtimeTemplateName = "__runtime";
-        $environment->getLoader()->setTemplate($runtimeTemplateName, $template);
+        $runtimeEnv->getLoader()->setTemplate($runtimeTemplateName, $template);
 
         // Render the tempate using the unique runtime template name
-        return $environment->render($runtimeTemplateName, $context);
+        return $runtimeEnv->render($runtimeTemplateName, $context);
     }
 
 }
