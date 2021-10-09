@@ -16,6 +16,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testRender() {
         $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
@@ -31,6 +32,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testPrependPath() {
         $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
@@ -47,6 +49,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testAddPath() {
         $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
@@ -63,6 +66,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testSetPaths() {
         $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
@@ -79,6 +83,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testRenderTemplateString() {
         $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
