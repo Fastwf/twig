@@ -100,6 +100,29 @@ class TwigServiceTest extends TestCase {
     }
 
     /**
+     * Test the global variable injection.
+     *
+     * @covers Fastwf\Twig\TwigService
+     * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\RouteModel
+     */
+    public function testAddGlobal()
+    {
+        $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
+
+        $service = new TwigService($engine);
+        $service->addGlobal('name', 'Foo');
+
+        $this->assertEquals(
+            'Hello Foo!',
+            $service->renderTemplateString(
+                'Hello {{ name }}!',
+                [],
+            ),
+        );
+    }
+
+    /**
      * Generate a setup TestingEngine.
      *
      * @param string $configurationPath

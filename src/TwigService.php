@@ -4,10 +4,11 @@ namespace Fastwf\Twig;
 
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
-use Twig\Loader\FilesystemLoader;
+use Twig\Loader\ChainLoader;
 use Fastwf\Core\Engine\Service;
-use Fastwf\Core\Utils\AsyncProperty;
+use Twig\Loader\FilesystemLoader;
 
+use Fastwf\Core\Utils\AsyncProperty;
 use Fastwf\Twig\Extension\FrameworkExtension;
 
 /**
@@ -16,8 +17,8 @@ use Fastwf\Twig\Extension\FrameworkExtension;
 class TwigService extends Service {
 
     private $loader;
+    private $arrayLoader;
     private $environment;
-    private $runtimeEnvironment;
     private $extension; 
 
     public function __construct($context) {
@@ -25,6 +26,7 @@ class TwigService extends Service {
 
         $this->extension = new FrameworkExtension($context);
 
+        $this->arrayLoader = new AsyncProperty(function () { return new ArrayLoader([]); });
         $this->loader = new AsyncProperty(function () use ($context) {
             // Create the template loader asynchronously to use it only when it's required
             return new FilesystemLoader(
@@ -36,7 +38,10 @@ class TwigService extends Service {
             $modeProduction = $context->getConfiguration()->getBoolean('server.modeProduction', false);
 
             $environment = new Environment(
-                $this->loader->get(),
+                new ChainLoader([
+                    $this->loader->get(),
+                    $this->arrayLoader->get(),
+                ]),
                 [
                     'cache' => $context->getCachePath('twig.twig'),
                     'auto_reload' => !$modeProduction,
@@ -47,15 +52,22 @@ class TwigService extends Service {
 
             return $environment;
         });
-        $this->runtimeEnvironment = new AsyncProperty(function () {
-            $environment = new Environment(
-                new ArrayLoader([]),
-                ['strict_variables' => true]
-            );
-            $environment->addExtension($this->extension);
+    }
 
-            return $environment;
-        });
+    /**
+     * Inject in the global context the key/value pair.
+     * 
+     * Warning: the environment is loaded when global must be added.
+     * Prefer adding global variable to context when twig rendering must be used in the request handler.
+     *
+     * @param string $name the name of the key
+     * @param mixed $value the value to save for the given key
+     * @return void
+     */
+    public function addGlobal($name, $value)
+    {
+        $this->environment->get()
+            ->addGlobal($name, $value);
     }
 
     /**
@@ -109,14 +121,15 @@ class TwigService extends Service {
      * @return string the template rendered with context variables
      */
     public function renderTemplateString($template, $context = []) {
-        $runtimeEnv = $this->runtimeEnvironment->get();
+        $environment = $this->environment->get();
 
         // The loader interface is an ArrayLoader, override the previous runtime template 
         $runtimeTemplateName = "__runtime";
-        $runtimeEnv->getLoader()->setTemplate($runtimeTemplateName, $template);
+        $this->arrayLoader->get()
+            ->setTemplate($runtimeTemplateName, $template);
 
         // Render the tempate using the unique runtime template name
-        return $runtimeEnv->render($runtimeTemplateName, $context);
+        return $environment->render($runtimeTemplateName, $context);
     }
 
 }
