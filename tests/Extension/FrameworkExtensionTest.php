@@ -15,9 +15,11 @@ class FrameworkExtensionTest extends TestCase
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testRenderUrlFor() {
+        /** @var TestingEngine */
         $engine = $this->getMockBuilder(TestingEngine::class)
             ->setConstructorArgs([
                 __DIR__ . '/../../resources/configuration.ini',
@@ -55,10 +57,12 @@ class FrameworkExtensionTest extends TestCase
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testRenderAsset()
     {
+        /** @var TestingEngine */
         $engine = $this->getMockBuilder(TestingEngine::class)
             ->setConstructorArgs([__DIR__ . '/../../resources/configuration.ini'])
             ->onlyMethods(['handleRequest', 'sendResponse'])
@@ -76,10 +80,12 @@ class FrameworkExtensionTest extends TestCase
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testRenderAssetUsingBaseUrl()
     {
+        /** @var TestingEngine */
         $engine = $this->getMockBuilder(TestingEngine::class)
             ->setConstructorArgs([__DIR__ . '/alt-config.ini'])
             ->onlyMethods(['handleRequest', 'sendResponse'])

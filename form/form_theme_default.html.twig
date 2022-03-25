@@ -1,0 +1,329 @@
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+{#                                                           UTILITY BLOCK                                                                #}
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+
+
+
+
+{# Render common part of controls #}
+{% block __form_attributes %}
+{%- for attr, value in control.attributes -%}
+{%- if attr != 'class' %}
+    {%- if value is same as(true) %} {{ attr }}
+    {%- elseif value is not same as(false) and value is not empty %} {{ attr }}="{{ value is iterable ? value|join(' ') : value }}"
+    {%- endif %}
+{%- endif %}
+{%- endfor -%}
+
+{# Handle class separatly to allows to inject error class if required #}
+{%- set cls = control.attributes.class is defined ? control.attributes.class : [] %}
+{%- if control.violation is defined and control.violation is not empty %}
+{%- set cls = (cls is iterable ? cls : cls|split(' '))|merge(['is-invalid']) %}
+{%- endif %}
+{%- if cls is not empty %} class="{{ cls|join(' ') }}"{% endif -%}
+{% endblock %}
+
+
+
+
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+{#                                                          RENDER THE FORM                                                               #}
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+
+
+
+
+{% block form %}
+{{- form_start(form) -}}
+{# Render controls #}
+{%- for control in form.controls -%}
+    {{- form_row(control) -}}
+{%- endfor -%}
+{{- form_end(form) -}}
+{% endblock %}
+
+
+{% block form_start -%}
+<form action="{{ control.action }}" method="{{ control.method }}" enctype="{{ control.enctype }}"{{ block('__form_attributes') }}>
+{%- endblock %}
+
+
+{% block form_end -%}
+</form>
+{%- endblock %}
+
+
+
+
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+{#                                                           RENDER A ROW                                                                 #}
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+
+
+
+
+{# Standard form label: add label element #}
+{% block form_label -%}
+{% if control.label -%}
+<label{% if control.attributes.id is defined %} for="{{ control.attributes.id }}"{% endif %}>
+    {{- control.label -}}
+</label>
+{%- endif %}
+{%- endblock %}
+
+
+{# Standard form control: render the block with name of html tag #}
+{% block form_control -%}
+{{- block(control.tag) -}}
+{%- endblock %}
+
+
+{# Standard form errors: render in invalid feedback all errors #}
+{% block form_errors -%}
+{% if control.violation -%}
+<div class="field-errors">
+    {%- for violation in control.violation.violations -%}
+    {{ violation.message }}.{% if not loop.last %}<br />{% endif %}
+    
+    {%- endfor -%}
+</div>
+{%- endif %}
+{%- endblock %}
+
+
+{# Standard form help: add div with help message #}
+{% block form_help -%}
+{% if control.help -%}
+<div class="field-help">{{ control.help }}</div>
+{%- endif %}
+{%- endblock %}
+
+
+{# Entry for form row: render specific row or default row #}
+{% block form_row -%}
+{%- if control.tag is null -%}
+    {# This control is a container type #}
+    {%- set row_block_name = "row__container_#{control.containerType}" -%}
+    {%- if block(row_block_name) is defined -%}
+        {{ block(row_block_name) }}
+    {%- else -%}
+        {{ block('row__container_default') }}
+    {%- endif -%}
+{%- else -%}
+    {# This control is a standard widget #}
+    {%- set row_block_name = "row__#{control.tag}" ~ (control.tag == 'input' ? "_#{control.type}" : '') -%}
+    {%- if block(row_block_name) is defined -%}
+        {{ block(row_block_name) }}
+    {%- else -%}
+        {{ block('row__default') }}
+    {%- endif -%}
+{%- endif -%}
+{%- endblock %}
+
+
+
+
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+{#                                                           DETAILS ROWS                                                                 #}
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+
+
+{# -------------------------------------------------------- default blocks -------------------------------------------------------------- #}
+
+
+{# Container #}
+{% block row__container_default -%}
+<div{{ block('__form_attributes') }}>
+{%- if control.label %}<h2>{{ control.label }}</h2>{% endif %}
+{{- form_help(control) -}}
+{%- for subControl in control %}
+    {{- form_row(subControl) -}}
+{% endfor -%}
+</div>
+{%- endblock %}
+
+
+{# Widget #}
+{% block row__default -%}
+<div class="field-row">
+    {{- form_label(control) -}}
+    {{- form_control(control) -}}
+    {{- form_errors(control) -}}
+    {{- form_help(control) -}}
+</div>
+{%- endblock %}
+
+
+{# ------------------------------------------------------- specific blocks -------------------------------------------------------------- #}
+
+
+{# container widget #}
+{% block row__container_widget -%}
+<div class="field-row"{{ block('__form_attributes') }}>
+{{- form_label(control) -}}
+{# Add subcontrols #}
+{%- for subControl in control %}
+    {{- form_row(subControl) -}}
+{% endfor -%}
+{{- form_errors(control) -}}
+{{- form_help(control) -}}
+</div>
+{%- endblock %}
+
+
+{# input[hidden] element #}
+{% block row__input_hidden -%}
+{{ form_control(control) }}
+{%- endblock %}
+
+
+{# input[checkbox] element #}
+{% block row__input_checkbox -%}
+<div class="field-row">
+    {{- form_control(control) -}}
+    {{- form_errors(control) -}}
+    {{- form_help(control) -}}
+</div>
+{%- endblock %}
+
+
+{# input[radio] element (radio is always rendered in radio group container) #}
+{% block row__input_radio -%}
+{{ form_control(control) }}
+{%- endblock %}
+
+
+{# ----------------------------------------------------- button render system ----------------------------------------------------------- #}
+
+{# input[submit] element #}
+{% block row__input_submit -%}
+{{ block('__row_common__button') }}
+{%- endblock %}
+
+{# input[reset] element #}
+{% block row__input_reset -%}
+{{ block('__row_common__button') }}
+{%- endblock %}
+
+{# button element #}
+{% block row__button -%}
+{{ block('__row_common__button') }}
+{%- endblock %}
+
+
+{# Common button element #}
+{% block __row_common__button -%}
+<div class="field-row">
+{{- form_control(control) -}}
+</div>
+{%- endblock %}
+
+
+
+
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+{#                                                          RENDER WIDGET                                                                 #}
+{# -------------------------------------------------------------------------------------------------------------------------------------- #}
+
+
+{# --------------------------------------------------------- render input --------------------------------------------------------------- #}
+
+
+{# Entry point to render an input #}
+{% block input -%}
+{# Use specific control block or use the default #}
+{%- set input_block_name = "input__#{control.type}" -%}
+
+{% if block(input_block_name) is defined -%}
+{{- block(input_block_name) -}}
+{%- else -%}
+{{- block('input__default') -}}
+{%- endif %}
+{%- endblock %}
+
+
+{# Default input rendering #}
+{% block input__default -%}
+<input type="{{ control.type }}"{% if control.name is not empty %} name="{{ control.fullName }}"{% endif %}
+    {%- if control.value %} value="{{ control.svalue }}"{% endif %}
+    {{- block('__form_attributes') }}>
+{%- endblock %}
+
+
+{# Render input[checkbox] only #}
+{% block input__checkbox -%}
+<div>{#
+#}<input type="checkbox" name="{{ control.fullName }}" value="{{ svalue }}"
+    {{- block('__form_attributes') }}>{#
+#}<label{% if control.attributes.id is defined %} for="{{ control.attributes.id }}"{% endif %}>
+    {{- control.label -}}
+</label></div>
+{%- endblock %}
+
+
+{# Render input[radio] only #}
+{% block input__radio -%}
+<div>{#
+#}<input type="radio"  name="{{ control.fullName }}" value="{{ svalue }}"
+    {{- block('__form_attributes') }}>{#
+#}<label{% if control.attributes.id is defined %} for="{{ control.attributes.id }}"{% endif %}>
+    {{- control.label -}}
+</label></div>
+{%- endblock %}
+
+{# ------------------------------------------------------- render textarea -------------------------------------------------------------- #}
+
+
+{# Render textarea #}
+{% block textarea -%}
+<textarea{% if control.name is not empty %} name="{{ control.fullName }}"{% endif %}
+    {{- block('__form_attributes') }}>
+{{- control.svalue -}}
+</textarea>
+{%- endblock %}
+
+
+{# -------------------------------------------------------- render select --------------------------------------------------------------- #}
+
+
+{# Render select #}
+{% block select -%}
+<select{% if control.name is not empty %} name="{{ control.fullName }}"{% endif %}
+    {{- block('__form_attributes') }}>
+{%- for option in control.options -%}
+{{ block(option.tag) }}
+{%- endfor -%}
+</select>
+{%- endblock %}
+
+
+{# Render select option group #}
+{% block optgroup -%}
+<optgroup{% if option.label %} label="{{ option.label }}"{% endif %}{% if option.disabled %} disabled{% endif %}>
+{%- for option in option.options -%}
+{{ block('option') }}
+{%- endfor -%}
+</optgroup>
+{%- endblock %}
+
+
+{# Render select option #}
+{% block option -%}
+<option value="{{ option.value }}"
+    {%- if option.selected %} selected{% endif %}
+    {%- if option.disabled %} disabled{% endif %}>
+    {{- option.label -}}
+</option>
+{%- endblock %}
+
+
+{# -------------------------------------------------------- render button --------------------------------------------------------------- #}
+
+
+{# Render button #}
+{% block button -%}
+<button type="{{ control.type }}"{% if control.name is not empty %} name="{{ control.fullName }}"{% endif %}
+    {{- block('__form_attributes') }}{%- if control.help %} title="{{control.help}}"{% endif %}>
+        {{- control.label -}}
+</button>
+{%- endblock %}

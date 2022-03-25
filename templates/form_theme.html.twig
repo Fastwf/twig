@@ -1,0 +1,9 @@
+{% extends form_default_theme() %}
+
+
+{% block textarea -%}
+<textarea{% if control.name is not empty %} name="{{ control.fullName }}"{% endif %} placeholder="{{ control.help }}"
+    {{- block('__form_attributes') }}>
+{{- control.svalue -}}
+</textarea>
+{%- endblock %}

@@ -16,6 +16,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testRender() {
@@ -32,6 +33,24 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
+     * @covers Fastwf\Twig\Extension\RouteModel
+     */
+    public function testNamespaceRender() {
+        $engine = $this->getTestingEngine(__DIR__ . '/../resources/configuration.ini');
+
+        $service = new TwigService($engine);
+
+        $this->assertEquals(
+            \file_get_contents(__DIR__ . '/../resources/expected/index-module.html'),
+            $service->render('@fastwf/index.html.twig', ['engine' => 'Twig']),
+        );
+    }
+
+    /**
+     * @covers Fastwf\Twig\TwigService
+     * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testPrependPath() {
@@ -49,6 +68,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testAddPath() {
@@ -66,6 +86,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testSetPaths() {
@@ -83,6 +104,7 @@ class TwigServiceTest extends TestCase {
     /**
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testRenderTemplateString() {
@@ -104,6 +126,7 @@ class TwigServiceTest extends TestCase {
      *
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testAddGlobal()
@@ -129,6 +152,7 @@ class TwigServiceTest extends TestCase {
      * @return Fastwf\Tests\Engine\TestingEngine
      */
     private function getTestingEngine($configurationPath) {
+        /** @var TestingEngine */
         $engine = $this->getMockBuilder(TestingEngine::class)
             ->setConstructorArgs([$configurationPath])
             ->onlyMethods(['handleRequest', 'sendResponse'])

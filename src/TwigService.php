@@ -7,8 +7,8 @@ use Twig\Loader\ArrayLoader;
 use Twig\Loader\ChainLoader;
 use Fastwf\Core\Engine\Service;
 use Twig\Loader\FilesystemLoader;
-
-use Fastwf\Core\Utils\AsyncProperty;
+use Fastwf\Api\Utils\AsyncProperty;
+use Fastwf\Twig\Extension\FormExtension;
 use Fastwf\Twig\Extension\FrameworkExtension;
 
 /**
@@ -16,10 +16,33 @@ use Fastwf\Twig\Extension\FrameworkExtension;
  */
 class TwigService extends Service {
 
+    /**
+     * The file system template loader as async property.
+     *
+     * @var AsyncProperty<FilesystemLoader>
+     */
     private $loader;
+
+    /**
+     * The array template loader as async property.
+     *
+     * @var AsyncProperty<ArrayLoader>
+     */
     private $arrayLoader;
+
+    /**
+     * The environment as async property.
+     *
+     * @var AsyncProperty<Environment>
+     */
     private $environment;
-    private $extension; 
+
+    /**
+     * The twig main extension.
+     *
+     * @var FrameworkExtension
+     */
+    private $extension;
 
     public function __construct($context) {
         parent::__construct($context);
@@ -29,10 +52,40 @@ class TwigService extends Service {
         $this->arrayLoader = new AsyncProperty(function () { return new ArrayLoader([]); });
         $this->loader = new AsyncProperty(function () use ($context) {
             // Create the template loader asynchronously to use it only when it's required
-            return new FilesystemLoader(
-                [$context->getConfiguration()->get('twig.templatePath', 'templates')],
-                $context->getRootPath()
-            );
+            //
+            // Load all template path from 'twig.templatePath' configuration as an array or a basic string
+            $templates = $context->getConfiguration()->get(TwigConfiguration::TEMPLATE_PATHS, 'templates');
+            if (\gettype($templates) === 'string')
+            {
+                // Correct the template to have an array
+                $templates = [$templates];
+            }
+
+            $fsLoader = new FilesystemLoader([], $context->getRootPath());
+
+            // Add fastwf default templates
+            //  Add default form theme
+            $fsLoader->addPath(__DIR__.'/../form/', 'fastwf');
+
+            // Analyse each path to detect a namespace and add them to the fs loader
+            foreach ($templates as $template)
+            {
+                $index = strpos($template, PATH_SEPARATOR);
+                if ($index !== false)
+                {
+                    $namespace = substr($template, 0, $index);
+                    $path = substr($template, $index + 1);
+                }
+                else
+                {
+                    $namespace = FilesystemLoader::MAIN_NAMESPACE;
+                    $path = $template;
+                }
+
+                $fsLoader->addPath($path, $namespace);
+            }
+
+            return $fsLoader;
         });
         $this->environment = new AsyncProperty(function () use ($context) {
             $modeProduction = $context->getConfiguration()->getBoolean('server.modeProduction', false);
@@ -49,6 +102,7 @@ class TwigService extends Service {
                 ]
             );
             $environment->addExtension($this->extension);
+            $environment->addExtension(new FormExtension($context, $environment));
 
             return $environment;
         });

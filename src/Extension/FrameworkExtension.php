@@ -3,8 +3,8 @@
 namespace Fastwf\Twig\Extension;
 
 use Twig\TwigFunction;
-use Fastwf\Core\Utils\StringUtil;
-
+use Fastwf\Core\Engine\Context;
+use Fastwf\Api\Utils\StringUtil;
 use Fastwf\Core\Router\RouterService;
 use Twig\Extension\AbstractExtension;
 use Fastwf\Core\Router\Formatter\PathFormatter;
@@ -13,14 +13,24 @@ use Fastwf\Core\Router\Formatter\PartialPathFormatter;
 class FrameworkExtension extends AbstractExtension
 {
 
+    /**
+     * The application context.
+     *
+     * @var Context
+     */
     private $context;
 
+    /**
+     * The path formatter that allows to generate static asset path.
+     *
+     * @var PathFormatter
+     */
     private $assetFormatter;
 
     /**
      * Constructor
      *
-     * @param Fastwf\Core\Engine\Context $context the engine context
+     * @param Context $context the engine context
      */
     public function __construct($context)
     {

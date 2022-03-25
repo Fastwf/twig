@@ -19,12 +19,14 @@ class TwigStarterTest extends TestCase
      * @covers Fastwf\Twig\TwigService
      * @covers Fastwf\Twig\Components\TwigStarter
      * @covers Fastwf\Twig\Extension\FrameworkExtension
+     * @covers Fastwf\Twig\Extension\FormExtension
      * @covers Fastwf\Twig\Extension\RouteModel
      */
     public function testStart()
     {
         $inputInterceptor = new TwigStarter();
 
+        /** @var TestingEngine */
         $engine = $this->getMockBuilder(TestingEngine::class)
             ->setConstructorArgs([__DIR__."/../../resources/configuration.ini"])
             ->onlyMethods(['handleRequest', 'sendResponse'])
